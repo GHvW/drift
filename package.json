@@ -1,0 +1,26 @@
+{
+  "name": "drift",
+  "version": "1.0.0",
+  "description": "A Kata of sorts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GHvW/drift.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GHvW/drift/issues"
+  },
+  "homepage": "https://github.com/GHvW/drift#readme",
+  "dependencies": {
+    "immutable": "^4.0.0-rc.12"
+  },
+  "devDependencies": {
+    "jest": "^26.4.2",
+    "typescript": "^4.0.2"
+  }
+}
