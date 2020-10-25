@@ -84,9 +84,7 @@ interface TraverseEnv<A> {
 const TO = "to";
 const FROM = "from";
 
-function* traverse<A>(
-    map: AdjacencyMap<A>, 
-    { visited, inventory }: TraverseEnv<A>): Generator<Record<A>, void, void> {
+function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: TraverseEnv<A>): Generator<Record<A>, void, void> {
 
     const next = inventory.peek();
     if (next === undefined) {
@@ -111,13 +109,13 @@ function* traverse<A>(
     yield* traverse(map, newEnv)
 }
 
-// function* depthFirstTraverse<A>(map: AdjacencyMap<A>): Generator<> {
+function* depthFirstTraverse<A>(start: Record<A>, map: AdjacencyMap<A>): Generator<Record<A>, void, void> {
+    yield* traverse(map, { visited: Set<Record<A>>([start]), inventory: simpleStack(start) });
+}
 
-// }
-
-// function* breadthFirstTraverse<A>(map: AdjacencyMap<A>): Generator<> {
-
-// }
+function* breadthFirstTraverse<A>(start: Record<A>, map: AdjacencyMap<A>): Generator<Record<A>, void, void> {
+    yield* traverse(map, { visited: Set<Record<A>>([start]), inventory: simpleQueue(start) });
+}
 
 
 
