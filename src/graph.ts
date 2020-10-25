@@ -7,8 +7,8 @@ import { Collection, Record, Set, Map } from "immutable";
 
 // use types instead? 
 type Edge<A> = { 
-    from: A, 
-    to: A 
+    from: Record<A>, 
+    to: Record<A> 
 }
 
 type WeightedEdge<A> = { weight: number } & Edge<A>;
@@ -17,17 +17,17 @@ type WeightedEdge<A> = { weight: number } & Edge<A>;
 //     weight: number
 // }
 
-let e = {
-    from: 0,
-    to: 1,
-    weight: 10
-}
+// let e = {
+//     from: 0,
+//     to: 1,
+//     weight: 10
+// }
 
-function takeEdge(e: Edge<number>): void {
-    console.log("edge: ", e);
-}
+// function takeEdge(e: Edge<number>): void {
+//     console.log("edge: ", e);
+// }
 
-let it = takeEdge(e);
+// let it = takeEdge(e);
 
 type Graph<A> = {
     vertices: Set<Record<A>>
@@ -81,6 +81,9 @@ interface TraverseEnv<A> {
     inventory: IInventory<Record<A>>;
 }
 
+const TO = "to";
+const FROM = "from";
+
 function* traverse<A>(
     map: AdjacencyMap<A>, 
     { visited, inventory }: TraverseEnv<A>): Generator<Record<A>, void, void> {
@@ -90,15 +93,22 @@ function* traverse<A>(
         return;
     }
 
-    const newInventory =
+    const newEnv =
         map
             .get(next)
-            .reduce((agg, edge) => {
-                if (edge.to)
-            }, { visited, inventory });
+            .reduce((env, edge) => {
+                const nextVertex = edge.get(TO);
+                if (env.visited.contains(nextVertex)) {
+                    return env;
+                }
+                return { 
+                    visited: env.visited.add(nextVertex), 
+                    inventory: env.inventory.conj(nextVertex),
+                };
+            }, { visited: visited, inventory: inventory.pop() });
 
     yield next;
-    yield* traverse(map, visited, )
+    yield* traverse(map, newEnv)
 }
 
 // function* depthFirstTraverse<A>(map: AdjacencyMap<A>): Generator<> {
