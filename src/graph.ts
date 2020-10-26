@@ -6,7 +6,7 @@ import { Record, Set, Map } from "immutable";
 // }
 
 // use types instead? 
-type Edge<A> = { 
+export type Edge<A> = { 
     from: Record<A>, 
     to: Record<A> 
 }
@@ -23,7 +23,7 @@ type Edge<A> = {
 //     edges: Set<Record<Edge<A> | WeightedEdge<A>>> // TODO - might not work
 // }
 
-type AdjacencyMap<A> = Map<Record<A>, Set<Record<Edge<A>>>>;
+export type AdjacencyMap<A> = Map<Record<A>, Set<Record<Edge<A>>>>;
 
 // type WeightedAdjacencyMap<A> = Map<Record<A>, Set<Record<WeightedEdge<A>>>>;
 
