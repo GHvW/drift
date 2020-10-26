@@ -1,4 +1,4 @@
-import { Collection, Record, Set, Map } from "immutable";
+import { Record, Set, Map } from "immutable";
 
 // interface Edge<A> {
 //     from: A
@@ -11,32 +11,21 @@ type Edge<A> = {
     to: Record<A> 
 }
 
-type WeightedEdge<A> = { weight: number } & Edge<A>;
+// type WeightedEdge<A> = { weight: number } & Edge<A>;
 
 // interface WeightedEdge<A> extends Edge<A> {
 //     weight: number
 // }
 
-// let e = {
-//     from: 0,
-//     to: 1,
-//     weight: 10
+
+// type Graph<A> = {
+//     vertices: Set<Record<A>>
+//     edges: Set<Record<Edge<A> | WeightedEdge<A>>> // TODO - might not work
 // }
-
-// function takeEdge(e: Edge<number>): void {
-//     console.log("edge: ", e);
-// }
-
-// let it = takeEdge(e);
-
-type Graph<A> = {
-    vertices: Set<Record<A>>
-    edges: Set<Record<Edge<A> | WeightedEdge<A>>> // TODO - might not work
-}
 
 type AdjacencyMap<A> = Map<Record<A>, Set<Record<Edge<A>>>>;
 
-type WeightedAdjacencyMap<A> = Map<Record<A>, Set<Record<WeightedEdge<A>>>>;
+// type WeightedAdjacencyMap<A> = Map<Record<A>, Set<Record<WeightedEdge<A>>>>;
 
 interface IInventory<A> {
     peek(): A;
@@ -82,18 +71,18 @@ interface TraverseEnv<A> {
 }
 
 const TO = "to";
-const FROM = "from";
+// const FROM = "from";
 
-function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: TraverseEnv<A>): Generator<Record<A>, void, void> {
+export function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: TraverseEnv<A>): Generator<Record<A>, void, void> {
 
     const next = inventory.peek();
-    if (next === undefined) {
+    const nextNode = map.get(next);
+    if (next === undefined || nextNode === undefined) {
         return;
     }
 
     const newEnv =
-        map
-            .get(next)
+        nextNode
             .reduce((env, edge) => {
                 const nextVertex = edge.get(TO);
                 if (env.visited.contains(nextVertex)) {
@@ -109,11 +98,11 @@ function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: TraverseEnv<
     yield* traverse(map, newEnv)
 }
 
-function* depthFirstTraverse<A>(start: Record<A>, map: AdjacencyMap<A>): Generator<Record<A>, void, void> {
+export function* depthFirstTraverse<A>(start: Record<A>, map: AdjacencyMap<A>): Generator<Record<A>, void, void> {
     yield* traverse(map, { visited: Set<Record<A>>([start]), inventory: simpleStack(start) });
 }
 
-function* breadthFirstTraverse<A>(start: Record<A>, map: AdjacencyMap<A>): Generator<Record<A>, void, void> {
+export function* breadthFirstTraverse<A>(start: Record<A>, map: AdjacencyMap<A>): Generator<Record<A>, void, void> {
     yield* traverse(map, { visited: Set<Record<A>>([start]), inventory: simpleQueue(start) });
 }
 

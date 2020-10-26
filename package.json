@@ -4,7 +4,7 @@
   "description": "A Kata of sorts",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tsc && jest dist"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/GHvW/drift#readme",
   "dependencies": {
+    "@types/jest": "^26.0.15",
     "immutable": "^4.0.0-rc.12"
   },
   "devDependencies": {
