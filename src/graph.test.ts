@@ -1,8 +1,8 @@
 import { Record, Map, Set } from "immutable";
-import { breadthFirstTraverse } from "./graph";
+import { breadthFirstTraverse, Edge } from "./graph";
 
 describe("graph tests", () => {
-    const Edge = Record({ from: 0, to: 0 });
+    const Edge = Record<Edge<number>>({ from: 0, to: 0 });
 
     const adjacency = Map([
         [1, Set([
