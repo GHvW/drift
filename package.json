@@ -4,7 +4,7 @@
   "description": "A Kata of sorts",
   "main": "",
   "scripts": {
-    "test": "tsc && jest ./dist"
+    "test": "jest"
   },
   "repository": {
     "type": "git",

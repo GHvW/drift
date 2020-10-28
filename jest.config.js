@@ -10,3 +10,6 @@
 //     "^.+\\.(ts|tsx)$": "ts-jest"
 //   },
 // }
+module.exports = {
+    preset: "ts-jest",
+}
