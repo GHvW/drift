@@ -5,13 +5,16 @@ import { Set, Map, Record } from "immutable";
 //     to: A
 // }
 
+
 // use types instead? 
 export type Edge<A> = { 
     from: A, 
     to: A 
 }
 
+
 // type WeightedEdge<A> = { weight: number } & Edge<A>;
+
 
 // interface WeightedEdge<A> extends Edge<A> {
 //     weight: number
@@ -23,15 +26,19 @@ export type Edge<A> = {
 //     edges: Set<Record<Edge<A> | WeightedEdge<A>>> // TODO - might not work
 // }
 
+
 export type AdjacencyMap<A> = Map<A, Set<Record<Edge<A>>>>;
 
+
 // type WeightedAdjacencyMap<A> = Map<Record<A>, Set<Record<WeightedEdge<A>>>>;
+
 
 interface IInventory<A> {
     peek(): A;
     pop(): IInventory<A>;
     conj(item: A): IInventory<A>;
 }
+
 
 // TODO real stack
 function simpleStack<A>(...items: Array<A>): IInventory<A> {
@@ -50,6 +57,7 @@ function simpleStack<A>(...items: Array<A>): IInventory<A> {
     }
 }
 
+
 // TODO real queue
 function simpleQueue<A>(...items: Array<A>): IInventory<A> {
     return {
@@ -66,6 +74,7 @@ function simpleQueue<A>(...items: Array<A>): IInventory<A> {
         },
     }
 }
+
 
 interface TraverseEnv<A> {
     visited: Set<A>;
@@ -100,6 +109,7 @@ export function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: Trave
     yield* traverse(map, newEnv) // refactor recursion out later
 }
 
+
 export function* depthFirstTraverse<A>(start: A, map: AdjacencyMap<A>): Generator<Record<Edge<A>>, void, void> {
     const startEdges = map.get(start)?.toArray() ?? [];
     const visitedStart = startEdges.map(edge => edge.get("to"));
@@ -108,22 +118,33 @@ export function* depthFirstTraverse<A>(start: A, map: AdjacencyMap<A>): Generato
     yield* traverse(map, { visited: Set<A>(visitedStart), inventory: initInventory }); // if this self edge works, make it more explicit
 }
 
+
 export function* breadthFirstTraverse<A>(start: A, map: AdjacencyMap<A>): Generator<Record<Edge<A>>, void, void> {
-    const startEdges = map.get(start)?.toArray() ?? [];
-    const visitedStart = startEdges.map(edge => edge.get("to"));
+    const startEdges = map.get(start) ?? Set<Record<Edge<A>>>();
+    const visitedStart = startEdges.map(edge => edge.get("to")).add(start);
     const initInventory = startEdges.reduce((init, edge) => init.conj(edge), simpleQueue<Record<Edge<A>>>());
 
     yield* traverse(map, { visited: Set<A>(visitedStart), inventory: initInventory }); // if this self edge works, make it more explicit
 }
 
-// export function depthFirstPaths<A>(start: A, map: AdjacencyMap<A>): Map<A, A> {
-//     const dfs = (start: A, paths: Map<A, A>, map: AdjacencyMap<A>) => {
-//         for (let val in depthFirstTraverse(start, map)) {
+type Traversal<A> = (start: A, map: AdjacencyMap<A>) => Generator<Record<Edge<A>>, void, void>;
 
-//         }
-//     };
+function paths<A>(traversal: Traversal<A>): (start: A, map: AdjacencyMap<A>) => Map<A, A> {
+    return (start, map) => {
+        let paths = Map<A, A>();
 
-//     return dfs(start, Map(), map);
-// }
+        for (let val of traversal(start, map)) {
+            paths = paths.set(val.get("to"), val.get("from"));
+        }
+
+        return paths;
+    }
+}
+
+
+export const depthFirstPaths = paths(depthFirstTraverse);
+
+
+export const breadthFirstPaths = paths(breadthFirstTraverse);
 
 // const one = Record<Edge<number>>({ from: 10, to: 30 });
