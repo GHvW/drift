@@ -2,9 +2,9 @@
   "name": "drift",
   "version": "1.0.0",
   "description": "A Kata of sorts",
-  "main": "index.js",
+  "main": "",
   "scripts": {
-    "test": "tsc && jest dist"
+    "test": "tsc && jest ./dist"
   },
   "repository": {
     "type": "git",
@@ -17,11 +17,12 @@
   },
   "homepage": "https://github.com/GHvW/drift#readme",
   "dependencies": {
-    "@types/jest": "^26.0.15",
     "immutable": "^4.0.0-rc.12"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.15",
     "jest": "^26.4.2",
+    "ts-jest": "^26.4.3",
     "typescript": "^4.0.2"
   }
 }

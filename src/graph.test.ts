@@ -50,7 +50,7 @@ describe("graph tests", () => {
     describe("breadth first tests", () => {
 
         for (let val of breadthFirstTraverse(1, adjacency)) {
-            console.log(val);
+            console.log("from: " + val.get("from") + " to: " + val.get("to"));
         }
     });
 });
