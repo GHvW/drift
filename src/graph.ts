@@ -147,4 +147,15 @@ export const depthFirstPaths = paths(depthFirstTraverse);
 
 export const breadthFirstPaths = paths(breadthFirstTraverse);
 
+
+export function* pathTo<A>(pathsTo: Map<A, A>, from: A): Generator<A, void, void> {
+    yield from;
+
+    const next = pathsTo.get(from);
+    if (next === undefined) {
+        return;
+    }
+
+    yield* pathTo(pathsTo, next);
+}
 // const one = Record<Edge<number>>({ from: 10, to: 30 });
