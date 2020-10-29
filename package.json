@@ -2,10 +2,12 @@
   "name": "drift",
   "version": "1.0.0",
   "description": "A Kata of sorts",
-  "main": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest"
   },
+  "prepublish": "tsc",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GHvW/drift.git"
