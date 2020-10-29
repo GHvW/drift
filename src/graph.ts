@@ -111,8 +111,8 @@ export function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: Trave
 
 
 export function* depthFirstTraverse<A>(start: A, map: AdjacencyMap<A>): Generator<Record<Edge<A>>, void, void> {
-    const startEdges = map.get(start)?.toArray() ?? [];
-    const visitedStart = startEdges.map(edge => edge.get("to"));
+    const startEdges = map.get(start) ?? Set<Record<Edge<A>>>();
+    const visitedStart = startEdges.map(edge => edge.get("to")).add(start);
     const initInventory = startEdges.reduce((init, edge) => init.conj(edge), simpleStack<Record<Edge<A>>>());
 
     yield* traverse(map, { visited: Set<A>(visitedStart), inventory: initInventory }); // if this self edge works, make it more explicit

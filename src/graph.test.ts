@@ -1,5 +1,5 @@
 import { Record, Map, Set } from "immutable";
-import { Edge, breadthFirstPaths, pathTo } from "./graph";
+import { Edge, breadthFirstPaths, depthFirstPaths, pathTo } from "./graph";
 
 describe("graph tests", () => {
     const Edge = Record<Edge<number>>({ from: 0, to: 0 });
@@ -40,18 +40,22 @@ describe("graph tests", () => {
         expect(2 + 2).toBe(4);
     }) 
 
-    // describe("depth first tests", () => {
+    describe("depth first", () => {
 
-    //     for (let val of depthFirstTraverse(1, adjacency)) {
-    //         console.log(val);
-    //     }
-    // });
+        test("paths", () => {
+            const paths = depthFirstPaths(1, adjacency);
+            console.log(paths.toJSON());
+            expect(paths.size).toEqual(6);
+        });
 
-    describe("breadth first tests", () => {
+        test("path to specific vertex", () => {
+            const result = [...pathTo(depthFirstPaths(1, adjacency), 5)];
+            expect(result).toEqual([5, 8, 4, 1]);
+        });
 
-        // for (let val of breadthFirstTraverse(1, adjacency)) {
-        //     console.log("from: " + val.get("from") + " to: " + val.get("to"));
-        // }
+    });
+
+    describe("breadth first", () => {
 
         test("paths", () => {
             const paths = breadthFirstPaths(1, adjacency);
