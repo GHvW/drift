@@ -1,36 +1,23 @@
-import { Set, Map, Record } from "immutable";
-
-// interface Edge<A> {
-//     from: A
-//     to: A
-// }
+import Immutable, { Record, RecordOf } from "immutable";
 
 
-// use types instead? 
-export type Edge<A> = { 
-    from: A, 
-    to: A 
-}
+// -------- Vertex -------------
+
+export type VertexProps<A> = { value: A };
+
+export type Vertex<A> = RecordOf<VertexProps<A>>;
+
+// -------- Edge -------------
 
 
-// type WeightedEdge<A> = { weight: number } & Edge<A>;
+export type EdgeProps<A> = { from: Vertex<A>, to: Vertex<A> };
+
+export type Edge<A> = RecordOf<EdgeProps<A>>
 
 
-// interface WeightedEdge<A> extends Edge<A> {
-//     weight: number
-// }
+// -------- Adjacency Map ----------
 
-
-// type Graph<A> = {
-//     vertices: Set<Record<A>>
-//     edges: Set<Record<Edge<A> | WeightedEdge<A>>> // TODO - might not work
-// }
-
-
-export type AdjacencyMap<A> = Map<A, Set<Record<Edge<A>>>>;
-
-
-// type WeightedAdjacencyMap<A> = Map<Record<A>, Set<Record<WeightedEdge<A>>>>;
+export type AdjacencyMap<A> = Immutable.Map<Vertex<A>, Immutable.Set<Edge<A>>>;
 
 
 interface IInventory<A> {
@@ -41,51 +28,51 @@ interface IInventory<A> {
 
 
 // TODO real stack
-function simpleStack<A>(...items: Array<A>): IInventory<A> {
+function simpleStack<A>(items: Array<A>): IInventory<A> {
     return {
         peek(): A {
             return items[items.length - 1];
         },
         pop(): IInventory<A> {
             items.pop();
-            return simpleStack(...items);
+            return simpleStack(items);
         },
         conj(item: A): IInventory<A> {
             items.push(item);
-            return simpleStack(...items);
+            return simpleStack(items);
         },
     }
 }
 
 
 // TODO real queue
-function simpleQueue<A>(...items: Array<A>): IInventory<A> {
+function simpleQueue<A>(items: Array<A>): IInventory<A> {
     return {
         peek(): A {
             return items[0];
         },
         pop(): IInventory<A> {
             items.shift();
-            return simpleQueue(...items);
+            return simpleQueue(items);
         },
         conj(item: A): IInventory<A> {
             items.push(item);
-            return simpleQueue(...items);
+            return simpleQueue(items);
         },
     }
 }
 
+// --------- Traversal -----------
 
 interface TraverseEnv<A> {
-    visited: Set<A>;
-    inventory: IInventory<Record<Edge<A>>>;
+    visited: Immutable.Set<Vertex<A>>;
+    inventory: IInventory<Edge<A>>;
 }
 
 
-export function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: TraverseEnv<A>): Generator<Record<Edge<A>>, void, void> {
-    const TO = "to";
+export function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: TraverseEnv<A>): Generator<Edge<A>, void, void> {
     const next = inventory.peek();
-    const to = next?.get(TO);
+    const to = next?.get("to");
     const nextNode = map.get(to);
 
     if (next === undefined || nextNode === undefined) {
@@ -95,56 +82,69 @@ export function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: Trave
     const newEnv =
         nextNode
             .reduce((env, edge) => {
-                const nextVertex = edge.get(TO);
-                if (env.visited.contains(nextVertex)) {
+                const nextVertex = edge.get("to");
+                if (env.visited.has(nextVertex)) {
                     return env;
                 }
-                return { 
-                    visited: env.visited.add(nextVertex), 
+                return {
+                    visited: env.visited.add(nextVertex),
                     inventory: env.inventory.conj(edge),
                 };
             }, { visited: visited, inventory: inventory.pop() });
 
     yield next;
-    yield* traverse(map, newEnv) // refactor recursion out later
+    yield* traverse(map, newEnv);
 }
 
 
-export function* depthFirstTraverse<A>(start: A, map: AdjacencyMap<A>): Generator<Record<Edge<A>>, void, void> {
-    const startEdges = map.get(start) ?? Set<Record<Edge<A>>>();
+export function* depthFirstTraverse<A>(
+    initEdge: Record.Factory<EdgeProps<A>>,
+    start: Vertex<A>,
+    map: AdjacencyMap<A>
+): Generator<Edge<A>, void, void> {
 
-    const visitedStart = 
-        startEdges
-            .map(edge => edge.get("to")).add(start);
-    const initInventory = 
-        startEdges
-            .reduce((init, edge) => init.conj(edge), simpleStack<Record<Edge<A>>>());
-
-    yield* traverse(map, { visited: Set<A>(visitedStart), inventory: initInventory }); // if this self edge works, make it more explicit
+    yield* traverse(
+        map,
+        {
+            visited: Immutable.Set.of<Vertex<A>>(start),
+            inventory: simpleStack([initEdge({ to: start, from: start })])
+        });
 }
 
 
-export function* breadthFirstTraverse<A>(start: A, map: AdjacencyMap<A>): Generator<Record<Edge<A>>, void, void> {
-    const startEdges = map.get(start) ?? Set<Record<Edge<A>>>();
+export function* breadthFirstTraverse<A>(
+    initEdge: Record.Factory<EdgeProps<A>>,
+    start: Vertex<A>,
+    map: AdjacencyMap<A>
+): Generator<Edge<A>, void, void> {
 
-    const visitedStart = 
-        startEdges
-            .map(edge => edge.get("to")).add(start);
-
-    const initInventory = 
-        startEdges
-            .reduce((init, edge) => init.conj(edge), simpleQueue<Record<Edge<A>>>());
-
-    yield* traverse(map, { visited: Set<A>(visitedStart), inventory: initInventory }); // if this self edge works, make it more explicit
+    yield* traverse(
+        map,
+        {
+            visited: Immutable.Set.of<Vertex<A>>(start),
+            inventory: simpleQueue([initEdge({ to: start, from: start })])
+        });
 }
 
-type Traversal<A> = (start: A, map: AdjacencyMap<A>) => Generator<Record<Edge<A>>, void, void>;
 
-function paths<A>(traversal: Traversal<A>): (start: A, map: AdjacencyMap<A>) => Map<A, A> {
-    return (start, map) => {
-        let paths = Map<A, A>();
 
-        for (let val of traversal(start, map)) {
+
+
+
+type Traversal<A> = (initEdge: Record.Factory<EdgeProps<A>>, start: Vertex<A>, map: AdjacencyMap<A>) => Generator<Edge<A>, void, void>;
+
+
+function paths<A>(
+    traversal: Traversal<A>
+): (
+        initEdge: Record.Factory<EdgeProps<A>>,
+        start: Vertex<A>,
+        map: AdjacencyMap<A>) => Immutable.Map<Vertex<A>, Vertex<A>> {
+
+    return (initEdge, start, map) => {
+        let paths = Immutable.Map<Vertex<A>, Vertex<A>>();
+
+        for (let val of traversal(initEdge, start, map)) {
             paths = paths.set(val.get("to"), val.get("from"));
         }
 
@@ -159,14 +159,13 @@ export const depthFirstPaths = paths(depthFirstTraverse);
 export const breadthFirstPaths = paths(breadthFirstTraverse);
 
 
-export function* pathTo<A>(pathsTo: Map<A, A>, from: A): Generator<A, void, void> {
+export function* pathTo<A>(pathsTo: Immutable.Map<Vertex<A>, Vertex<A>>, from: Vertex<A>): Generator<Vertex<A>, void, void> {
     yield from;
 
     const next = pathsTo.get(from);
-    if (next === undefined) {
+    if (!next || next.equals(from)) {
         return;
     }
 
     yield* pathTo(pathsTo, next);
 }
-// const one = Record<Edge<number>>({ from: 10, to: 30 });

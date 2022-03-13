@@ -1,30 +1,19 @@
 {
   "name": "drift",
-  "version": "1.0.0",
-  "description": "A Kata of sorts",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "private": true,
+  "version": "0.0.0",
   "scripts": {
-    "test": "jest"
-  },
-  "prepublish": "tsc",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/GHvW/drift.git"
-  },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/GHvW/drift/issues"
-  },
-  "homepage": "https://github.com/GHvW/drift#readme",
-  "dependencies": {
-    "immutable": "^4.0.0-rc.12"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.15",
-    "jest": "^26.4.2",
-    "ts-jest": "^26.4.3",
-    "typescript": "^4.0.2"
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0",
+    "vitest": "^0.6.0"
+  },
+  "dependencies": {
+    "immutable": "^4.0.0"
   }
 }

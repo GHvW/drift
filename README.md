@@ -1,2 +1,5 @@
 # drift
-A Kata of sorts
+
+An Immutable Graph Library
+
+Making heavy use of [Immutable JS](https://immutable-js.com/)
