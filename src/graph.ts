@@ -71,9 +71,8 @@ interface TraverseEnv<A> {
 
 
 export function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: TraverseEnv<A>): Generator<Edge<A>, void, void> {
-    const TO = "to";
     const next = inventory.peek();
-    const to = next?.get(TO);
+    const to = next?.get("to");
     const nextNode = map.get(to);
 
     if (next === undefined || nextNode === undefined) {
@@ -83,7 +82,7 @@ export function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: Trave
     const newEnv =
         nextNode
             .reduce((env, edge) => {
-                const nextVertex = edge.get(TO);
+                const nextVertex = edge.get("to");
                 if (env.visited.has(nextVertex)) {
                     return env;
                 }
