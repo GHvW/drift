@@ -1,55 +1,62 @@
-import { Record, Map, Set } from "immutable";
-import { Edge, breadthFirstPaths, depthFirstPaths, pathTo } from "./graph";
+import { test, describe, expect } from "vitest";
+import Immutable, { Record } from "immutable";
+import { AdjacencyMap, EdgeProps, VertexProps, Vertex, breadthFirstPaths, depthFirstPaths, pathTo } from "./graph";
 
 describe("graph tests", () => {
-    const Edge = Record<Edge<number>>({ from: 0, to: 0 });
+    const Vertex: Record.Factory<VertexProps<number>> = Record({ value: 0 });
+    const Edge: Record.Factory<EdgeProps<number>> = Record({ to: Vertex(), from: Vertex() });
 
-    const adjacency = Map([
-        [1, Set([
-            Edge({ from: 1, to: 3}), 
-            Edge({ from: 1, to: 4})
+    // const vertex: Vertex<number> = vert();
+    // const edge: Edge<number> = edge();
+
+    const adjacency: AdjacencyMap<number> = Immutable.Map([
+        [Vertex({ value: 1 }), Immutable.Set([
+            Edge({ from: Vertex({ value: 1 }), to: Vertex({ value: 3 }) }),
+            Edge({ from: Vertex({ value: 1 }), to: Vertex({ value: 4 }) })
         ])],
-        [2, Set()],
-        [3, Set([
-            Edge({ from: 3, to: 1 }),            
-            Edge({ from: 3, to: 5 }), 
-            Edge({ from: 3, to: 7 }), 
+        [Vertex({ value: 2 }), Immutable.Set()],
+        [Vertex({ value: 3 }), Immutable.Set([
+            Edge({ from: Vertex({ value: 3 }), to: Vertex({ value: 1 }) }),
+            Edge({ from: Vertex({ value: 3 }), to: Vertex({ value: 5 }) }),
+            Edge({ from: Vertex({ value: 3 }), to: Vertex({ value: 7 }) }),
         ])],
-        [4, Set([
-            Edge({ from: 4, to: 1 }),            
-            Edge({ from: 4, to: 8 }), 
+        [Vertex({ value: 4 }), Immutable.Set([
+            Edge({ from: Vertex({ value: 4 }), to: Vertex({ value: 1 }) }),
+            Edge({ from: Vertex({ value: 4 }), to: Vertex({ value: 8 }) }),
         ])],
-        [5, Set([
-            Edge({ from: 5, to: 3 }),            
-            Edge({ from: 5, to: 8 }), 
-            Edge({ from: 5, to: 6 }), 
+        [Vertex({ value: 5 }), Immutable.Set([
+            Edge({ from: Vertex({ value: 5 }), to: Vertex({ value: 3 }) }),
+            Edge({ from: Vertex({ value: 5 }), to: Vertex({ value: 8 }) }),
+            Edge({ from: Vertex({ value: 5 }), to: Vertex({ value: 6 }) }),
         ])],
-        [6, Set([
-            Edge({ from: 6, to: 5 }),            
+        [Vertex({ value: 6 }), Immutable.Set([
+            Edge({ from: Vertex({ value: 6 }), to: Vertex({ value: 5 }) }),
         ])],
-        [7, Set([
-            Edge({ from: 7, to: 3 }),            
+        [Vertex({ value: 7 }), Immutable.Set([
+            Edge({ from: Vertex({ value: 7 }), to: Vertex({ value: 3 }) }),
         ])],
-        [8, Set([
-            Edge({ from: 8, to: 5 }),            
-            Edge({ from: 8, to: 4 }), 
+        [Vertex({ value: 8 }), Immutable.Set([
+            Edge({ from: Vertex({ value: 8 }), to: Vertex({ value: 5 }) }),
+            Edge({ from: Vertex({ value: 8 }), to: Vertex({ value: 4 }) }),
         ])],
     ]);
 
     test("2 + 2 is 4", () => {
         expect(2 + 2).toBe(4);
-    }) 
+    })
 
     describe("depth first", () => {
 
         test("paths", () => {
-            const paths = depthFirstPaths(1, adjacency);
-            console.log(paths.toJSON());
-            expect(paths.size).toEqual(6);
+            const paths = depthFirstPaths(Edge, Vertex({ value: 1 }), adjacency);
+            // console.log(paths.toJSON());
+            expect(paths.size).toEqual(7);
         });
 
         test("path to specific vertex", () => {
-            const result = [...pathTo(depthFirstPaths(1, adjacency), 5)];
+            const result =
+                [...pathTo(depthFirstPaths(Edge, Vertex({ value: 1 }), adjacency), Vertex({ value: 5 }))].map(it => it.value);
+
             expect(result).toEqual([5, 8, 4, 1]);
         });
 
@@ -58,13 +65,13 @@ describe("graph tests", () => {
     describe("breadth first", () => {
 
         test("paths", () => {
-            const paths = breadthFirstPaths(1, adjacency);
-            console.log(paths.toJSON());
-            expect(paths.size).toEqual(6);
+            const paths = breadthFirstPaths(Edge, Vertex({ value: 1 }), adjacency);
+            expect(paths.size).toEqual(7);
         });
 
         test("path to specific vertex", () => {
-            const result = [...pathTo(breadthFirstPaths(1, adjacency), 5)];
+            const result: Array<number> =
+                [...pathTo(breadthFirstPaths(Edge, Vertex({ value: 1 }), adjacency), Vertex({ value: 5 }))].map(x => x.value);
             expect(result).toEqual([5, 3, 1]);
         });
     });
