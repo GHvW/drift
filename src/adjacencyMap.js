@@ -46,26 +46,19 @@ export function* traverse({ visited, inventory }, adjacencyMap) {
 }
 
 
-// export function* depthFirstTraverse<A>(
-//     initEdge: Record.Factory<EdgeProps<A>>,
-//     start: Vertex<A>,
-//     map: AdjacencyMap<A>
-// ): Generator<Edge<A>, void, void> {
+// depthFirstTraverse :: (Vertex, AdjacencyMap<Vertex>) -> Generator<Edge<Vertex>, void, void>>
 export function* depthFirstTraverse(start, adjacencyMap) {
     yield* traverse(
         {
             visited: Immutable.Set.of(start),
             inventory: simpleStack([Immutable.Map({ to: start, from: start })])
-        }, 
+        },
         adjacencyMap);
 }
 
 
-// export function* breadthFirstTraverse<A>(
-//     initEdge: Record.Factory<EdgeProps<A>>,
-//     start: Vertex<A>,
-//     map: AdjacencyMap<A>
-// ): Generator<Edge<A>, void, void> {
+
+// breadthFirstTraverse :: (Vertex, AdjacencyMap<Vertex>) -> Generator<Edge<Vertex>, void, void>
 export function* breadthFirstTraverse(start, adjacencyMap) {
     yield* traverse(
         {
@@ -79,13 +72,7 @@ export function* breadthFirstTraverse(start, adjacencyMap) {
 // type Traversal<A> = (initEdge: Record.Factory<EdgeProps<A>>, start: Vertex<A>, map: AdjacencyMap<A>) => Generator<Edge<A>, void, void>;
 
 
-// function paths<A>(
-//     traversal: Traversal<A>
-// ): (
-//         initEdge: Record.Factory<EdgeProps<A>>,
-//         start: Vertex<A>,
-//         map: AdjacencyMap<A>
-//     ) => Immutable.Map<Vertex<A>, Vertex<A>> {
+// paths :: (Traversal<Vertex>) -> (Vertex, AdjacencyMap<Vertex>) -> Immutable.Map<Vertex, Vertex>
 function paths(traversal) {
     return (start, map) => {
         let paths = Immutable.Map();

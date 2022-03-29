@@ -1,51 +1,45 @@
 import { test, describe, expect } from "vitest";
-import Immutable, { Record } from "immutable";
-import { AdjacencyMap, breadthFirstPaths, depthFirstPaths, pathTo } from "./adjacencyMap";
-import { EdgeProps, VertexProps } from "./graph";
+import Immutable from "immutable";
+import { breadthFirstPaths, depthFirstPaths, pathTo } from "./adjacencyMap";
 
 describe("adjacency map tests", () => {
-    // const Vertex: Record.Factory<VertexProps<number>> = Record({ value: 0 });
-    // const Edge: Record.Factory<EdgeProps<number>> = Record({ to: Vertex(), from: Vertex() });
-
-    // const vertex: Vertex<number> = vert();
-    // const edge: Edge<number> = edge();
 
     const adjacency = Immutable.Map([
         [1, Immutable.Set([
-                Immutable.Map({ from: 1, to: 3 }),
-                Immutable.Map({ from: 1, to: 4 })
-            ])
+            Immutable.Map({ from: 1, to: 3 }),
+            Immutable.Map({ from: 1, to: 4 })
+        ])
         ],
         [2, Immutable.Set()],
         [3, Immutable.Set([
-                Immutable.Map({ from: 3, to: 1 }),
-                Immutable.Map({ from: 3, to: 5 }),
-                Immutable.Map({ from: 3, to: 7 }),
-            ])
+            Immutable.Map({ from: 3, to: 1 }),
+            Immutable.Map({ from: 3, to: 5 }),
+            Immutable.Map({ from: 3, to: 7 }),
+        ])
         ],
         [4, Immutable.Set([
-                Immutable.Map({ from: 4, to: 1 }),
-                Immutable.Map({ from: 4, to: 8 }),
-            ])
+            Immutable.Map({ from: 4, to: 1 }),
+            Immutable.Map({ from: 4, to: 8 }),
+        ])
         ],
         [5, Immutable.Set([
-                Immutable.Map({ from: 5, to: 3 }),
-                Immutable.Map({ from: 5, to: 8 }),
-                Immutable.Map({ from: 5, to: 6 }),
-            ])
+            Immutable.Map({ from: 5, to: 3 }),
+            Immutable.Map({ from: 5, to: 8 }),
+            Immutable.Map({ from: 5, to: 6 }),
+        ])
         ],
         [6, Immutable.Set([
-                Immutable.Map({ from: 6, to: 5 }),
-            ])
+            Immutable.Map({ from: 6, to: 5 }),
+        ])
         ],
         [7, Immutable.Set([
-                Immutable.Map({ from: 7, to: 3 }),
-            ])
+            Immutable.Map({ from: 7, to: 3 }),
+        ])
         ],
         [8, Immutable.Set([
-                Immutable.Map({ from: 8, to: 5 }),
-                Immutable.Map({ from: 8, to: 4 }),
-            ])
+            Immutable.Map({ from: 8, to: 5 }),
+            Immutable.Map({ from: 8, to: 4 }),
+        ])
         ],
     ]);
 
@@ -62,8 +56,7 @@ describe("adjacency map tests", () => {
         });
 
         test("path to specific vertex", () => {
-            const result =
-                [...pathTo(depthFirstPaths(1, adjacency), 5)];
+            const result = [...pathTo(depthFirstPaths(1, adjacency), 5)];
 
             expect(result).toEqual([5, 8, 4, 1]);
         });
@@ -78,8 +71,7 @@ describe("adjacency map tests", () => {
         });
 
         test("path to specific vertex", () => {
-            const result =
-                [...pathTo(breadthFirstPaths(1, adjacency), 5)];
+            const result = [...pathTo(breadthFirstPaths(1, adjacency), 5)];
 
             expect(result).toEqual([5, 3, 1]);
         });
