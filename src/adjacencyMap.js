@@ -2,24 +2,10 @@
 import Immutable, { Record, Map } from "immutable";
 import { SimpleQueue } from "./supporting-data-structures/simpleQueue";
 import { SimpleStack } from "./supporting-data-structures/simpleStack";
-// import { Edge, EdgeProps, Vertex } from "./graph";
 
 // export type AdjacencyMap<A> = Immutable.Map<Vertex<A>, Immutable.Set<Edge<A>>>;
 
 
-// interface IInventory<A> {
-//     peek(): A;
-//     pop(): IInventory<A>;
-//     conj(item: A): IInventory<A>;
-// }
-
-// interface TraverseEnv<A> {
-//     visited: Immutable.Set<Vertex<A>>;
-//     inventory: IInventory<Edge<A>>;
-// }
-
-
-// export function* traverse<A>(map: AdjacencyMap<A>, { visited, inventory }: TraverseEnv<A>): Generator<Edge<A>, void, void> {
 // traverse :: (TraverseEnv<A>, AdjacencyMap<A>) => Generator<Edge<A>, void, void>
 export function* traverse({ visited, inventory }, adjacencyMap) {
     const next = inventory.peek();
