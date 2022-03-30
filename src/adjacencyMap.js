@@ -1,5 +1,7 @@
 
 import Immutable, { Record, Map } from "immutable";
+import { SimpleQueue } from "./supporting-data-structures/simpleQueue";
+import { SimpleStack } from "./supporting-data-structures/simpleStack";
 // import { Edge, EdgeProps, Vertex } from "./graph";
 
 // export type AdjacencyMap<A> = Immutable.Map<Vertex<A>, Immutable.Set<Edge<A>>>;
@@ -51,7 +53,7 @@ export function* depthFirstTraverse(start, adjacencyMap) {
     yield* traverse(
         {
             visited: Immutable.Set.of(start),
-            inventory: simpleStack([Immutable.Map({ to: start, from: start })])
+            inventory: SimpleStack([Immutable.Map({ to: start, from: start })])
         },
         adjacencyMap);
 }
@@ -63,7 +65,7 @@ export function* breadthFirstTraverse(start, adjacencyMap) {
     yield* traverse(
         {
             visited: Immutable.Set.of(start),
-            inventory: simpleQueue([Immutable.Map({ to: start, from: start })])
+            inventory: SimpleQueue([Immutable.Map({ to: start, from: start })])
         },
         adjacencyMap);
 }
@@ -106,42 +108,3 @@ export function* pathTo(pathsTo, from) {
     yield* pathTo(pathsTo, next);
 }
 
-
-// ------------ Util --------------
-
-
-// TODO real stack
-// function simpleStack<A>(items: Array<A>): IInventory<A> {
-function simpleStack(items) {
-    return {
-        peek() {
-            return items[items.length - 1];
-        },
-        pop() {
-            items.pop();
-            return simpleStack(items);
-        },
-        conj(item) {
-            items.push(item);
-            return simpleStack(items);
-        },
-    }
-}
-
-
-// TODO real queue
-function simpleQueue(items) {
-    return {
-        peek() {
-            return items[0];
-        },
-        pop() {
-            items.shift();
-            return simpleQueue(items);
-        },
-        conj(item) {
-            items.push(item);
-            return simpleQueue(items);
-        },
-    }
-}
