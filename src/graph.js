@@ -33,4 +33,9 @@ function Graph({ vertices, edges }) {
     });
 }
 
-export { Graph, Edge };
+
+function degreeSum(graph) {
+    return graph.edges.size * 2;
+}
+
+export { Graph, Edge, degreeSum };

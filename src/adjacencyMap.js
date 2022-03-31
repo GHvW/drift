@@ -61,18 +61,18 @@ export function* breadthFirstTraverse(start, adjacencyMap) {
 
 
 // paths :: (Traversal<Vertex>) => (Vertex, AdjacencyMap<Vertex>) => Immutable.Map<Vertex, Vertex>
-function paths(traversal) {
-    return (start, map) => {
-        let paths = Immutable.Map();
+function* paths(traversal, start, adjacencyMap) {
+    const inner = function* inner(map) {
 
-        for (let edge of traversal(start, map)) {
-            const to = edge.get("to");
-            const from = edge.get("from");
-            paths = paths.set(to, from);
-        }
-
-        return paths;
     }
+
+    for (let edge of traversal(start, map)) {
+        const to = edge.get("to");
+        const from = edge.get("from");
+        paths = paths.set(to, from);
+    }
+
+    return paths;
 }
 
 
