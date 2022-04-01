@@ -94,3 +94,15 @@ export function* pathTo(pathsTo, from) {
     yield* pathTo(pathsTo, next);
 }
 
+
+// degree :: (AdjacencyMap, Vertex) => number
+export function degree(adjacencyMap, node) {
+    return adjacencyMap.get(node)?.size ?? 0;
+}
+
+
+export function averageDegree(adjacencyMap) {
+    return adjacencyMap
+        .map(it => it.size ?? 0)
+        .reduce((total, n) => total + n, 0) / adjacencyMap.size;
+}
