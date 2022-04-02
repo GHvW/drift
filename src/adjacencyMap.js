@@ -1,5 +1,7 @@
 
 import Immutable, { Record, Map } from "immutable";
+import { composeLeft } from "./functions/compose";
+import { scan } from "./sequences/scan";
 import { SimpleQueue } from "./supporting-data-structures/simpleQueue";
 import { SimpleStack } from "./supporting-data-structures/simpleStack";
 
@@ -45,7 +47,6 @@ export function* depthFirstTraverse(start, adjacencyMap) {
 }
 
 
-
 // breadthFirstTraverse :: (Vertex, AdjacencyMap<Vertex>) => Generator<Edge<Vertex>, void, void>
 export function* breadthFirstTraverse(start, adjacencyMap) {
     yield* traverse(
@@ -57,40 +58,37 @@ export function* breadthFirstTraverse(start, adjacencyMap) {
 }
 
 
-// type Traversal<A> = (start: Vertex<A>, map: AdjacencyMap<A>) => Generator<Edge<A>, void, void>;
-
-
-// paths :: (Traversal<Vertex>) => (Vertex, AdjacencyMap<Vertex>) => Immutable.Map<Vertex, Vertex>
-function* paths(traversal, start, adjacencyMap) {
-    const inner = function* inner(map) {
-
-    }
-
-    for (let edge of traversal(start, map)) {
-        const to = edge.get("to");
-        const from = edge.get("from");
-        paths = paths.set(to, from);
-    }
-
-    return paths;
+// pathReducer :: (Map<Edge, Edge>, Edge) => Map<Edge, Edge>
+function pathReducer(paths, edge) {
+    const to = edge.get("to");
+    const from = edge.get("from");
+    return paths.set(to, from);
 }
 
 
-export const depthFirstPaths = paths(depthFirstTraverse);
+// depthFirstPaths :: (Vertex) => AdjacencyMap<Vertex> => Map<Edge, Edge>
+export const depthFirstPaths = (start) =>
+    composeLeft(
+        depthFirstTraverse.bind(null, start),
+        scan.bind(null, pathReducer, Immutable.Map()));
+
+// breadthFirstPaths :: (Vertex) => AdjacencyMap<Vertex> => Map<Edge, Edge>
+export const breadthFirstPaths = (start) =>
+    composeLeft(
+        breadthFirstTraverse.bind(null, start),
+        scan.bind(null, pathReducer, Immutable.Map()));
 
 
-export const breadthFirstPaths = paths(breadthFirstTraverse);
 
-
-// export function* pathTo<A>(pathsTo: Immutable.Map<Vertex<A>, Vertex<A>>, from: Vertex<A>): Generator<Vertex<A>, void, void> {
-export function* pathTo(pathsTo, from) {
+// export function pathTo<A>(pathsTo: Immutable.Map<Vertex<A>, Vertex<A>>, from: Vertex<A>): Generator<Vertex<A>, void, void> {
+export function* path(from, paths) {
     yield from;
 
     const next = pathsTo.get(from);
     if (!next || Immutable.is(next, from)) {
-        return;
+        return list;
     }
 
-    yield* pathTo(pathsTo, next);
+    yield* path(next, paths);
 }
 

@@ -16,6 +16,10 @@ function Edge({ from, to }) {
     return Immutable.Map({ from: from, to: to });
 }
 
+function WeightedEdge({ from, to, weight }) {
+    return Immutable.Map({ from: from, to: to, weight: weight });
+}
+
 // // --------------- Graph -------------
 
 // export type GraphProps<A> = {
