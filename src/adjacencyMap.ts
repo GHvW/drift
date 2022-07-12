@@ -6,6 +6,7 @@ import { SimpleQueue } from "./supporting-data-structures/simpleQueue";
 import { SimpleStack } from "./supporting-data-structures/simpleStack";
 import { Vertex, Edge } from "./graph";
 import { Memory } from "./supporting-data-structures/memory";
+import { partial, partial2 } from "./functions/partial";
 
 export type AdjacencyMap<A> = Immutable.Map<Vertex<A>, Immutable.Set<Edge<A>>>;
 
@@ -45,44 +46,49 @@ export function* traverse<A>(
 }
 
 
-// depthFirstTraverse :: (Vertex, AdjacencyMap<Vertex>) => Generator<Edge<Vertex>, void, void>>
-export function* depthFirstTraverse(start, adjacencyMap) {
-    yield* traverse(
-        {
-            visited: Immutable.Set.of(start),
-            inventory: SimpleStack([Immutable.Map({ to: start, from: start })])
-        },
+export function* depthFirstTraverse<A>(
+    start: Vertex<A>,
+    adjacencyMap: AdjacencyMap<A>
+): Generator<Edge<A>, void, null> {
+    yield* traverse({
+        visited: Immutable.Set.of(start),
+        inventory: SimpleStack(adjacencyMap.get(start)?.toArray() ?? [])
+    },
         adjacencyMap);
 }
 
 
-// breadthFirstTraverse :: (Vertex, AdjacencyMap<Vertex>) => Generator<Edge<Vertex>, void, void>
-export function* breadthFirstTraverse(start, adjacencyMap) {
-    yield* traverse(
-        {
-            visited: Immutable.Set.of(start),
-            inventory: SimpleQueue([Immutable.Map({ to: start, from: start })])
-        },
+export function* breadthFirstTraverse<A>(
+    start: Vertex<A>,
+    adjacencyMap: AdjacencyMap<A>
+): Generator<Edge<A>, void, null> {
+    yield* traverse({
+        visited: Immutable.Set.of(start),
+        inventory: SimpleQueue(adjacencyMap.get(start)?.toArray() ?? [])
+    },
         adjacencyMap);
 }
 
 
 // pathReducer :: (Map<Edge, Edge>, Edge) => Map<Edge, Edge>
-function pathReducer(paths, edge) {
-    const to = edge.get("to");
-    const from = edge.get("from");
+function addPath<A>(paths: Immutable.Map<Edge<A>, Edge<A>>, edge: Edge<A>): Immutable.Map<Edge<A>, Edge<A>> {
+    const to = edge.to;
+    const from = edge.from;
     return paths.set(to, from);
 }
 
 
 // depthFirstPaths :: (Vertex) => AdjacencyMap<Vertex> => Map<Edge, Edge>
-export const depthFirstPaths = (start) =>
-    composeLeft(
-        depthFirstTraverse.bind(null, start),
-        scan.bind(null, pathReducer, Immutable.Map()));
+export function depthFirstPaths<A>(
+    start: Vertex<A>
+): (am: AdjacencyMap<Vertex<A>>) => Immutable.Map<Edge<A>, Edge<A>> {
+    return composeLeft(
+        partial(depthFirstTraverse, start),
+        partial2(scan, addPath, Immutable.Map()));
+}
 
 // breadthFirstPaths :: (Vertex) => AdjacencyMap<Vertex> => Map<Edge, Edge>
-export const breadthFirstPaths = (start) =>
+export const breadthFirstPaths = <A>(start: Vertex<A>) =>
     composeLeft(
         breadthFirstTraverse.bind(null, start),
         scan.bind(null, pathReducer, Immutable.Map()));
@@ -103,12 +109,15 @@ export function* path(from, paths) {
 
 
 // degree :: (AdjacencyMap, Vertex) => number
-export function degree(adjacencyMap, node) {
-    return adjacencyMap.get(node)?.size ?? 0;
+export function degree<A>(node: Vertex<A>, adjacencyMap: AdjacencyMap<A>): number {
+    return adjacencyMap
+        .get(node)
+        ?.size
+        ?? 0;
 }
 
 
-export function averageDegree(adjacencyMap) {
+export function averageDegree<A>(adjacencyMap: AdjacencyMap<A>): number {
     return adjacencyMap
         .map(it => it.size ?? 0)
         .reduce((total, n) => total + n, 0) / adjacencyMap.size;
