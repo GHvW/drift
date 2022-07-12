@@ -1,13 +1,15 @@
-function SimpleStack(items) {
+import { Memory } from './memory';
+
+function SimpleStack<A>(items: Array<A>): Memory<A> {
     return {
-        peek() {
+        peek(): A {
             return items[items.length - 1];
         },
-        pop() {
+        pop(): Memory<A> {
             items.pop();
             return SimpleStack(items);
         },
-        conj(item) {
+        conj(item): Memory<A> {
             items.push(item);
             return SimpleStack(items);
         },

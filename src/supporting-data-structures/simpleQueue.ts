@@ -1,4 +1,6 @@
-function SimpleQueue(items) {
+import { Memory } from './memory';
+
+function SimpleQueue<A>(items: Array<A>): Memory<A> {
     return {
         peek() {
             return items[0];

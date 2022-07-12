@@ -4,14 +4,23 @@ import { composeLeft } from "./functions/compose";
 import { scan } from "./sequences/scan";
 import { SimpleQueue } from "./supporting-data-structures/simpleQueue";
 import { SimpleStack } from "./supporting-data-structures/simpleStack";
+import { Vertex, Edge } from "./graph";
+import { Memory } from "./supporting-data-structures/memory";
 
-// export type AdjacencyMap<A> = Immutable.Map<Vertex<A>, Immutable.Set<Edge<A>>>;
+export type AdjacencyMap<A> = Immutable.Map<Vertex<A>, Immutable.Set<Edge<A>>>;
 
+type TranverseEnv<A> = {
+    visited: Immutable.Set<Vertex<A>>,
+    inventory: Memory<Edge<A>>
+}
 
-// traverse :: (TraverseEnv<A>, AdjacencyMap<A>) => Generator<Edge<A>, void, void>
-export function* traverse({ visited, inventory }, adjacencyMap) {
+export function* traverse<A>(
+    { visited, inventory }: TranverseEnv<A>,
+    adjacencyMap: AdjacencyMap<A>
+): Generator<Edge<A>, void, null> {
     const next = inventory.peek();
-    const to = next?.get("to");
+    // const to = next?.get("to");
+    const to = next.to;
     const nextNode = adjacencyMap.get(to);
 
     if (next === undefined || nextNode === undefined) {
@@ -21,7 +30,7 @@ export function* traverse({ visited, inventory }, adjacencyMap) {
     const newEnv =
         nextNode
             .reduce((env, edge) => {
-                const nextVertex = edge.get("to");
+                const nextVertex = edge.to;
                 if (env.visited.has(nextVertex)) {
                     return env;
                 }
