@@ -18,7 +18,7 @@ type TranverseEnv<A> = {
 export function* traverse<A>(
     { visited, inventory }: TranverseEnv<A>,
     adjacencyMap: AdjacencyMap<A>
-): Generator<Edge<A>, void, null> {
+): Generator<Edge<A>, void, undefined> {
     const next = inventory.peek();
     // const to = next?.get("to");
     const to = next.to;
@@ -49,7 +49,7 @@ export function* traverse<A>(
 export function* depthFirstTraverse<A>(
     start: Vertex<A>,
     adjacencyMap: AdjacencyMap<A>
-): Generator<Edge<A>, void, null> {
+): Generator<Edge<A>, void, undefined> {
     yield* traverse({
         visited: Immutable.Set.of(start),
         inventory: SimpleStack(adjacencyMap.get(start)?.toArray() ?? [])
@@ -61,7 +61,7 @@ export function* depthFirstTraverse<A>(
 export function* breadthFirstTraverse<A>(
     start: Vertex<A>,
     adjacencyMap: AdjacencyMap<A>
-): Generator<Edge<A>, void, null> {
+): Generator<Edge<A>, void, undefined> {
     yield* traverse({
         visited: Immutable.Set.of(start),
         inventory: SimpleQueue(adjacencyMap.get(start)?.toArray() ?? [])
@@ -70,45 +70,52 @@ export function* breadthFirstTraverse<A>(
 }
 
 
-// pathReducer :: (Map<Edge, Edge>, Edge) => Map<Edge, Edge>
-function addPath<A>(paths: Immutable.Map<Edge<A>, Edge<A>>, edge: Edge<A>): Immutable.Map<Edge<A>, Edge<A>> {
+function updatePaths<A>(
+    paths: Immutable.Map<Vertex<A>, Vertex<A>>, 
+    edge: Edge<A>
+): Immutable.Map<Vertex<A>, Vertex<A>> {
     const to = edge.to;
     const from = edge.from;
     return paths.set(to, from);
 }
 
 
-// depthFirstPaths :: (Vertex) => AdjacencyMap<Vertex> => Map<Edge, Edge>
+// TODO - combine with bFP below?
 export function depthFirstPaths<A>(
     start: Vertex<A>
-): (am: AdjacencyMap<Vertex<A>>) => Immutable.Map<Edge<A>, Edge<A>> {
+): (am: AdjacencyMap<A>) => Generator<Immutable.Map<Vertex<A>, Vertex<A>>, void, undefined> {
     return composeLeft(
         partial(depthFirstTraverse, start),
-        partial2(scan, addPath, Immutable.Map()));
+        partial2(scan<Edge<A>, Immutable.Map<Vertex<A>, Vertex<A>>>, updatePaths, Immutable.Map<Vertex<A>, Vertex<A>>()));
 }
 
-// breadthFirstPaths :: (Vertex) => AdjacencyMap<Vertex> => Map<Edge, Edge>
-export const breadthFirstPaths = <A>(start: Vertex<A>) =>
-    composeLeft(
-        breadthFirstTraverse.bind(null, start),
-        scan.bind(null, pathReducer, Immutable.Map()));
+
+export function breadthFirstPaths<A>(
+    start: Vertex<A>
+): (am: AdjacencyMap<A>) => Generator<Immutable.Map<Vertex<A>, Vertex<A>>, void, undefined> { 
+    return composeLeft(
+        partial(breadthFirstTraverse, start),
+        partial2(scan<Edge<A>, Immutable.Map<Vertex<A>, Vertex<A>>>, updatePaths, Immutable.Map<Vertex<A>, Vertex<A>>()));
+}
 
 
+export function* path<A>(
+    from: Vertex<A>, 
+    paths: Immutable.Map<Vertex<A>, Vertex<A>>
+): Generator<Vertex<A>, void, undefined> {
 
-// export function pathTo<A>(pathsTo: Immutable.Map<Vertex<A>, Vertex<A>>, from: Vertex<A>): Generator<Vertex<A>, void, void> {
-export function* path(from, paths) {
     yield from;
 
-    const next = pathsTo.get(from);
-    if (!next || Immutable.is(next, from)) {
-        return list;
+    const next = paths.get(from);
+    // if (!next || Immutable.is(next, from)) {
+    //     return list;
+    // }
+    if (next) {
+        yield* path(next, paths);
     }
-
-    yield* path(next, paths);
 }
 
 
-// degree :: (AdjacencyMap, Vertex) => number
 export function degree<A>(node: Vertex<A>, adjacencyMap: AdjacencyMap<A>): number {
     return adjacencyMap
         .get(node)
