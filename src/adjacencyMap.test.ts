@@ -1,6 +1,6 @@
 import { test, describe, expect } from "vitest";
 import Immutable from "immutable";
-import { breadthFirstPaths, depthFirstPaths, pathTo } from "./adjacencyMap";
+import { breadthFirstPaths, depthFirstPaths, path } from "./adjacencyMap";
 
 describe("adjacency map tests", () => {
 
