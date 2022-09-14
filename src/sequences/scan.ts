@@ -1,11 +1,11 @@
 // scan :: (Reducer, State, Iterable<A>) => Iterable<State>
-type Reducer<A, B> = (b: B, a: A) => B;
+export type Reducer<A, B> = (b: A, a: B) => A;
 
 function* scan<A, B>(
     reducer: Reducer<A, B>,
-    init: B,
-    iterable: Generator<A, void, undefined>
-): Generator<B, void, undefined> {
+    init: A,
+    iterable: Generator<B, void, undefined>
+): Generator<A, void, undefined> {
     let state = init;
     for (let item of iterable) {
         const newState = reducer(state, item);
