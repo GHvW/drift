@@ -1,12 +1,11 @@
 
 import Immutable, { Record, Map as ImMap } from "immutable";
-import { composeLeft } from "./functions/compose";
 import { Reducer, scan } from "./sequences/scan";
 import { SimpleQueue } from "./supporting-data-structures/simpleQueue";
 import { SimpleStack } from "./supporting-data-structures/simpleStack";
 import { Vertex, Edge } from "./graph";
 import { Memory } from "./supporting-data-structures/memory";
-import { partial, partial2 } from "./functions/partial";
+import { pipe } from "./functions/pipe";
 
 export type AdjacencyMap<A> = ImMap<Vertex<A>, Immutable.Set<Edge<A>>>;
 
@@ -80,11 +79,15 @@ function updatePaths<A>(
 }
 
 
+
+
 // TODO - combine with bFP below?
 export function depthFirstPaths<A>(
-    start: Vertex<A>
-): (am: AdjacencyMap<A>) => Generator<ImMap<Vertex<A>, Vertex<A>>, void, undefined> {
-    return composeLeft(
+    start: Vertex<A>,
+    graph: AdjacencyMap<A>
+): Generator<ImMap<Vertex<A>, Vertex<A>>, void, undefined> {
+    return pipe(
+        graph,
         depthFirstTraverse
             .bind<
                 null,
@@ -104,9 +107,11 @@ export function depthFirstPaths<A>(
 
 
 export function breadthFirstPaths<A>(
-    start: Vertex<A>
-): (am: AdjacencyMap<A>) => Generator<ImMap<Vertex<A>, Vertex<A>>, void, undefined> {
-    return composeLeft(
+    start: Vertex<A>,
+    graph: AdjacencyMap<A>
+): Generator<ImMap<Vertex<A>, Vertex<A>>, void, undefined> {
+    return pipe(
+        graph,
         breadthFirstTraverse
             .bind<
                 null,
