@@ -11,7 +11,7 @@ export type Vertex<A> = Immutable.RecordOf<VertexProps<A>>;
 
 export type EdgeProps<A> = { from: Vertex<A>, to: Vertex<A> };
 
-export type Edge<A> = Immutable.RecordOf<EdgeProps<A>>
+export type Edge<A> = Immutable.RecordOf<EdgeProps<A>>;
 
 // const edgeConstructor: <A>(p: EdgeProps<A>) => Edge<A> = Record
 

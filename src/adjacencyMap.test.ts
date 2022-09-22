@@ -1,45 +1,65 @@
 import { test, describe, expect } from "vitest";
-import Immutable from "immutable";
-import { breadthFirstPaths, depthFirstPaths, path } from "./adjacencyMap";
+import Immutable, { Record } from "immutable";
+import { breadthFirstPaths, depthFirstPaths, path, AdjacencyMap } from "./adjacencyMap";
+import { Vertex, VertexProps, Edge, EdgeProps } from "./graph";
+import { collect, toArray } from "./sequences/collect";
 
 describe("adjacency map tests", () => {
+    const IntVertex: Record.Factory<VertexProps<number>> = Record({ value: 0 });
+    const IntEdge: Record.Factory<EdgeProps<number>> = Record({ from: IntVertex(), to: IntVertex() });
 
-    const adjacency = Immutable.Map([
-        [1, Immutable.Set([
-            Immutable.Map({ from: 1, to: 3 }),
-            Immutable.Map({ from: 1, to: 4 })
-        ])
+    const adjacency: AdjacencyMap<number> = Immutable.Map<Vertex<number>, Immutable.Set<Edge<number>>>([
+        [
+            IntVertex({ value: 1 }),
+            Immutable.Set([
+                IntEdge({ from: IntVertex({ value: 1 }), to: IntVertex({ value: 3 }) }),
+                IntEdge({ from: IntVertex({ value: 1 }), to: IntVertex({ value: 4 }) })
+            ])
         ],
-        [2, Immutable.Set()],
-        [3, Immutable.Set([
-            Immutable.Map({ from: 3, to: 1 }),
-            Immutable.Map({ from: 3, to: 5 }),
-            Immutable.Map({ from: 3, to: 7 }),
-        ])
+        [
+            IntVertex({ value: 2 }),
+            Immutable.Set<Edge<number>>()],
+        [
+            IntVertex({ value: 3 }),
+            Immutable.Set([
+                IntEdge({ from: IntVertex({ value: 3 }), to: IntVertex({ value: 1 }) }),
+                IntEdge({ from: IntVertex({ value: 3 }), to: IntVertex({ value: 5 }) }),
+                IntEdge({ from: IntVertex({ value: 3 }), to: IntVertex({ value: 7 }) }),
+            ])
         ],
-        [4, Immutable.Set([
-            Immutable.Map({ from: 4, to: 1 }),
-            Immutable.Map({ from: 4, to: 8 }),
-        ])
+        [
+            IntVertex({ value: 4 }),
+            Immutable.Set([
+                IntEdge({ from: IntVertex({ value: 4 }), to: IntVertex({ value: 1 }) }),
+                IntEdge({ from: IntVertex({ value: 4 }), to: IntVertex({ value: 8 }) }),
+            ])
         ],
-        [5, Immutable.Set([
-            Immutable.Map({ from: 5, to: 3 }),
-            Immutable.Map({ from: 5, to: 8 }),
-            Immutable.Map({ from: 5, to: 6 }),
-        ])
+        [
+            IntVertex({ value: 5 }),
+            Immutable.Set([
+                IntEdge({ from: IntVertex({ value: 5 }), to: IntVertex({ value: 3 }) }),
+                IntEdge({ from: IntVertex({ value: 5 }), to: IntVertex({ value: 8 }) }),
+                IntEdge({ from: IntVertex({ value: 5 }), to: IntVertex({ value: 6 }) }),
+            ])
         ],
-        [6, Immutable.Set([
-            Immutable.Map({ from: 6, to: 5 }),
-        ])
+        [
+            IntVertex({ value: 6 }),
+            Immutable.Set([
+                IntEdge({ from: IntVertex({ value: 6 }), to: IntVertex({ value: 5 }) }),
+            ])
         ],
-        [7, Immutable.Set([
-            Immutable.Map({ from: 7, to: 3 }),
-        ])
+        [
+            IntVertex({ value: 7 }),
+            Immutable.Set([
+                IntEdge({ from: IntVertex({ value: 7 }), to: IntVertex({ value: 3 }) }),
+            ])
         ],
-        [8, Immutable.Set([
-            Immutable.Map({ from: 8, to: 5 }),
-            Immutable.Map({ from: 8, to: 4 }),
-        ])
+        [
+            IntVertex({ value: 8 }),
+            Immutable.Set([
+                IntEdge({ from: IntVertex({ value: 8 }), to: IntVertex({ value: 5 }) }),
+                IntEdge({ from: IntVertex({ value: 8 }), to: IntVertex({ value: 4 }) }),
+            ])
         ],
     ]);
 
@@ -49,31 +69,49 @@ describe("adjacency map tests", () => {
 
     describe("depth first", () => {
 
+        const paths = toArray(depthFirstPaths(IntVertex({ value: 1 }), adjacency));
+
         test("paths", () => {
-            const paths = depthFirstPaths(1, adjacency);
-            // console.log(paths.toJSON());
-            expect(paths.size).toEqual(7);
+            expect(paths.length).toEqual(8);
+
         });
 
         test("path to specific vertex", () => {
-            const result = [...pathTo(depthFirstPaths(1, adjacency), 5)];
+            let gen = depthFirstPaths(IntVertex({ value: 1 }), adjacency);
+            gen.next().value;
+            gen.next().value;
+            gen.next().value;
+            let it = gen.next().value;
 
-            expect(result).toEqual([5, 8, 4, 1]);
+            if (it) {
+
+                const result = toArray(path(IntVertex({ value: 5 }), it)).map(x => x.value);
+                expect(result).toEqual([5, 8, 4, 1]);
+            }
         });
 
     });
 
     describe("breadth first", () => {
 
+        const paths = toArray(breadthFirstPaths(IntVertex({ value: 1 }), adjacency));
+
+        console.log(paths[paths.length - 1]);
         test("paths", () => {
-            const paths = breadthFirstPaths(1, adjacency);
-            expect(paths.size).toEqual(7);
+            expect(paths.length).toEqual(8);
         });
 
         test("path to specific vertex", () => {
-            const result = [...pathTo(breadthFirstPaths(1, adjacency), 5)];
+            let gen = breadthFirstPaths(IntVertex({ value: 1 }), adjacency);
+            gen.next();
+            gen.next();
+            let it = gen.next().value;
 
-            expect(result).toEqual([5, 3, 1]);
+            if (it) {
+                const result = toArray(path(IntVertex({ value: 5 }), it)).map(x => x.value);
+
+                expect(result).toEqual([5, 3, 1]);
+            }
         });
     });
 });

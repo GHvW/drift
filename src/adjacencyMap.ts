@@ -20,7 +20,7 @@ export function* traverse<A>(
 ): Generator<Edge<A>, void, undefined> {
     const next = inventory.peek();
     // const to = next?.get("to");
-    const to = next.to;
+    const to = next?.to;
     const nextNode = adjacencyMap.get(to);
 
     if (next === undefined || nextNode === undefined) {
@@ -73,9 +73,7 @@ function updatePaths<A>(
     paths: ImMap<Vertex<A>, Vertex<A>>,
     edge: Edge<A>
 ): ImMap<Vertex<A>, Vertex<A>> {
-    const to = edge.to;
-    const from = edge.from;
-    return paths.set(to, from);
+    return paths.set(edge.to, edge.from);
 }
 
 
@@ -137,12 +135,11 @@ export function* path<A>(
 
     yield from;
 
-    const next = paths.get(from);
-    // if (!next || Immutable.is(next, from)) {
-    //     return list;
-    // }
-    if (next) {
-        yield* path(next, paths);
+    let next = paths.get(from);
+
+    while (next) {
+        yield next;
+        next = paths.get(next);
     }
 }
 
